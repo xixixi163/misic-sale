@@ -19,9 +19,10 @@
         </el-header> -->
 
     <el-container>
+      <!-- 最左侧分类 -->
       <el-aside width="250px">
         <el-card class="leftNav">
-          <img src="../../../static/cateNav.png" class="leftImg" />
+          <img src="https://s3.bmp.ovh/imgs/2022/02/65788b8b65a8dc19.png" class="leftImg" />
           <div
             class="navItem"
             :class="index == showCategoryIndex ? 'cur' : ''"
@@ -252,7 +253,7 @@ export default {
   margin-left: 60px;
   position: fixed;
   border-radius: 20px;
-  background-color: #4f6e9d;
+  background-color: #787f86;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 
@@ -261,7 +262,7 @@ export default {
   margin-bottom: 20px;
   color: #ffffff;
   position: relative;
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .leftNav .navItem {
