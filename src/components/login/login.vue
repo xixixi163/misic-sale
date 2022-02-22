@@ -2,7 +2,7 @@
     <div>
         <el-row>
             <el-col :span="12">
-                <img class="loginImg" src="../../../static/left.jpg">
+                <img class="loginImg" src="https://s3.bmp.ovh/imgs/2022/02/259f25888bd5232e.jpg">
             </el-col>
 
             <el-col :span="12">
@@ -94,9 +94,9 @@
                         axios.post('https://www.xiaoqw.online/smallFrog-bookstore/server/login.php', {
                             username: this.ruleForm.tel,
                             password: this.ruleForm.pass
-                        }).then(response => { //用户名和密码将转为json传到后台接口              
+                        }).then(response => { //用户名和密码将转为json传到后台接口
                             let res = response.data; //用res承接返回后台的json文件(像使用数组那样)
-                            if (res.status == '1') { //显示登录结果             
+                            if (res.status == '1') { //显示登录结果
                                 console.log('登录成功');
                                 this.$message({
                                     showClose: true,
@@ -151,7 +151,7 @@
     }
 
     .loginImg {
-        width: 700px;
+        width:70%;
         margin: 0 auto;
         float: right;
     }
@@ -195,7 +195,7 @@
         border-radius: 25px;
         border: none;
         outline: none;
-        background-color: #4F6E9D;
+        background-color: #515a63;
         color: #FFFFFF;
         box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
     }
@@ -203,13 +203,13 @@
     .logBtn:focus,
     .logBtn:hover {
         color: #FFFFFF;
-        border-color: #7E9DCA;
-        background-color: #7E9DCA;
+        border-color: #787f86;
+        background-color: #787f86;
     }
 
     .logBtn:active {
         color: #FFFFFF;
-        border-color: #7E9DCA;
+        border-color: #787f86;
         outline: 0;
     }
 
