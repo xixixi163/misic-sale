@@ -18,7 +18,7 @@
             active-text-color="#4F6E9D"
           >
             <el-menu-item index="/home">首页</el-menu-item>
-            <el-menu-item index="/category">书籍分类</el-menu-item>
+            <el-menu-item index="/category">专辑分类</el-menu-item>
             <el-menu-item index="/newProduct">新货上架</el-menu-item>
             <!-- <el-menu-item index="/onSale">特价市场</el-menu-item> -->
           </el-menu>
@@ -60,9 +60,7 @@
               ></el-avatar>
 
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item icon="el-icon-setting"
-                  ><label @click="setting()">个人中心</label></el-dropdown-item
-                >
+
                 <el-dropdown-item icon="el-icon-circle-close"
                   ><label @click="exit()">退出登录</label></el-dropdown-item
                 >
@@ -81,10 +79,6 @@
             </div>
           </div>
 
-          <!-- <el-menu :default-active="$route.path" router="true" class="el-menu-demo" mode="horizontal" active-text-color="#4F6E9D">
-                        <el-menu-item index="/shopping/cart">购物车</el-menu-item>
-                        <el-menu-item index="/order">订单</el-menu-item>
-                    </el-menu> -->
         </el-col>
       </el-row>
     </el-header>
@@ -108,7 +102,7 @@
       </transition>
     </el-main>
 
-    <el-footer
+    <!-- <el-footer
       class="footer"
       height="220px"
       v-show="$route.name !== 'login' && $route.name !== 'register'"
@@ -158,7 +152,7 @@
           >
         </el-col>
       </el-row>
-    </el-footer>
+    </el-footer> -->
   </el-container>
 </template>
 
@@ -283,26 +277,26 @@ export default {
 
 .search2 input.el-input__inner:hover {
   /* width: 90%; */
-  border-color: #4f6e9d;
+  border-color: #515a63;
   border-radius: 25px;
 }
 
 .search3 input.el-input__inner:focus {
   /* width: 90%; */
-  border-color: #4f6e9d;
+  border-color: #515a63;
   border-radius: 25px;
 }
 
 .nav .box .myButton:focus,
 .nav .box .myButton:hover {
   color: #ffffff;
-  border-color: #7e9dca;
-  background-color: #7e9dca;
+  border-color: #787f86;
+  background-color: #787f86;
 }
 
 .nav .box .myButton:active {
   color: #ffffff;
-  border-color: #7e9dca;
+  border-color: #787f86;
   outline: 0;
 }
 
@@ -312,14 +306,14 @@ export default {
   line-height: 60px;
   text-align: center;
   color: #f5f5f5;
-  background-color: #4f6e9d;
+  background-color: #515a63;
   font-size: 15px;
   cursor: pointer;
   /* box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); */
 }
 
 .nav .cart:hover {
-  background-color: #7e9dca;
+  background-color: #787f86;
 }
 
 .nav .cartIcon {
@@ -333,14 +327,14 @@ export default {
   line-height: 60px;
   text-align: center;
   color: #f5f5f5;
-  background-color: #4f6e9d;
+  background-color: #515a63;
   font-size: 15px;
   cursor: pointer;
   /* box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); */
 }
 
 .nav .order:hover {
-  background-color: #7e9dca;
+  background-color: #787f86;
 }
 
 .nav .orderIcon {
