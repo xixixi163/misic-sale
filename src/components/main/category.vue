@@ -19,6 +19,7 @@
         </el-header> -->
 
     <el-container>
+      <!-- 最左侧分类 -->
       <el-aside width="250px">
         <el-card class="leftNav">
           <img src="../../../static/cateNav.png" class="leftImg" />
@@ -289,7 +290,7 @@ export default {
   margin-left: 60px;
   position: fixed;
   border-radius: 20px;
-  background-color: #4f6e9d;
+  background-color: #787f86;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
   z-index: 1;
 }
@@ -299,7 +300,7 @@ export default {
   margin-bottom: 20px;
   color: #ffffff;
   position: relative;
-  border-radius: 12px;
+  border-radius: 5px;
 }
 
 .leftNav .navItem {

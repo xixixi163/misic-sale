@@ -136,7 +136,7 @@
                     });
                     this.reload();
                     // let res = response.data;
-                    // if (res.status == '1') {            
+                    // if (res.status == '1') {
                     //     console.log('删除成功');
                     //     this.$message({
                     //         showClose: true,
@@ -211,7 +211,7 @@
     .cart_line {
         width: 100%;
         height: 2px;
-        background: #4f6e9d;
+        background: #515a63;
     }
 
     .list {
@@ -247,7 +247,7 @@
     }
 
     .summary .number {
-        color: #4f6e9d;
+        color: #515a63;
     }
 
     .summary .price {
@@ -257,12 +257,12 @@
 
     .summary .settlement {
         height: 60px;
-        background-color: #4f6e9d;
+        background-color: #515a63;
         color: #ffffff;
         cursor: pointer;
     }
 
     .summary .settlement:hover {
-        background-color: #7E9DCA;
+        background-color: #787f86;
     }
 </style>

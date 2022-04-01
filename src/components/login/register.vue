@@ -2,7 +2,7 @@
     <div>
         <el-row>
             <el-col :span="12">
-                <img class="regImg" src="../../../static/left.jpg">
+                <img class="regImg" src="https://s3.bmp.ovh/imgs/2022/02/259f25888bd5232e.jpg">
             </el-col>
 
             <el-col :span="12">
@@ -205,7 +205,7 @@ export default {
         border-radius: 25px;
         border: none;
         outline: none;
-        background-color: #4F6E9D;
+        background-color: #515a63;
         color: #FFFFFF;
         box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
     }
