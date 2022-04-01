@@ -18,7 +18,7 @@
             active-text-color="#4F6E9D"
           >
             <el-menu-item index="/home">首页</el-menu-item>
-            <el-menu-item index="/category">书籍分类</el-menu-item>
+            <el-menu-item index="/category">专辑分类</el-menu-item>
             <el-menu-item index="/newProduct">新货上架</el-menu-item>
             <!-- <el-menu-item index="/onSale">特价市场</el-menu-item> -->
           </el-menu>
@@ -41,8 +41,7 @@
         <el-col :xs="0" :sm="3" :md="2" :lg="3" class="box hidden-xs-only">
           <div
             v-if="
-              this.$cookies.get('status') == 'unlogin' ||
-              !this.$cookies.get('status')
+              !this.$cookies.get('token')
             "
           >
             <el-button
@@ -52,7 +51,7 @@
             ></el-button>
           </div>
 
-          <div v-if="this.$cookies.get('status') == 'logined'">
+          <div v-if="this.$cookies.get('token')">
             <el-dropdown>
               <el-avatar
                 :src="this.$cookies.get('Avatar')"
@@ -117,11 +116,11 @@
         <el-col :span="10" style="text-align: center">
           <div class="logo">
             <img class="favicon" src="../../../static/favicon.png" />
-            SMALLFROG
+            售后
           </div>
           <p class="description">
-            What books are you looking for? SMALLFROG is a bookstore for book
-            lovers to read and buy the books they are fond of.
+            想要找什么音乐专辑? 请联系我们，
+            我们会尽最大努力满足您的需求。
           </p>
           <div style="display: inline-block">
             <img class="socialImg" src="../../../static/social-facebook.png" />
@@ -185,7 +184,7 @@ export default {
       });
     },
     toCart() {
-      if (this.$cookies.get("status") == "logined") {
+      if (this.$cookies.get("token")) {
         this.$router.push({
           path: "/shopping/cart",
         });
@@ -202,7 +201,7 @@ export default {
       }
     },
     toOrder() {
-      if (this.$cookies.get("status") == "logined") {
+      if (this.$cookies.get("token")) {
         this.$router.push({
           path: "/order",
         });
@@ -224,7 +223,7 @@ export default {
       });
     },
     exit() {
-      this.$cookies.set("status", "unlogin");
+      this.$cookies.remove("token");
       this.$cookies.remove("user_ID");
       this.$cookies.remove("Avatar");
       this.reload();

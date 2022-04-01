@@ -10,7 +10,7 @@
                 <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="0">
                     <div class="myInput username1">
                         <el-form-item prop="tel">
-                            <el-input class="search1 search2 search3" prefix-icon="el-icon-user" v-model="ruleForm.tel" placeholder="请输入手机号" clearable="true"></el-input>
+                            <el-input class="search1 search2 search3" prefix-icon="el-icon-user" v-model="ruleForm.tel" placeholder="请输入手机号" :clearable="true"></el-input>
                         </el-form-item>
                     </div>
                     <div class="myInput password">
@@ -34,115 +34,114 @@
 </template>
 
 <script>
-    import axios from 'axios'
+import { Login } from '../../api/url'
+import { request } from '../../api/http'
 
-    export default {
-        data() {
-            // <!--验证手机号是否合法-->
-            let checkTel = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error(' '))
-                } else if (!this.checkMobile(value)) {
-                    callback(new Error(' '))
-                } else {
-                    callback()
-                }
-            }
-            // <!--验证密码-->
-            let validatePass = (rule, value, callback) => {
-                if (value === "") {
-                    callback(new Error(" "))
-                } else {
-                    if (this.ruleForm.checkPass !== "") {
-                        this.$refs.ruleForm.validateField("checkPass");
-                    }
-                    callback()
-                }
-            }
-
-            return {
-                ruleForm: {
-                    pass: '',
-                    tel: '',
-                },
-                rules: {
-                    pass: [{
-                        validator: validatePass,
-                        trigger: 'change'
-                    }],
-                    tel: [{
-                        validator: checkTel,
-                        trigger: 'change'
-                    }],
-                },
-            }
-        },
-        methods: {
-            // 验证手机号
-            checkMobile(str) {
-                let re = /^1\d{10}$/
-                if (re.test(str)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            // <!--提交登录-->
-            submitForm(formName) {
-                this.$refs[formName].validate(valid => {
-                    if (valid) {
-                        axios.post('https://www.xiaoqw.online/smallFrog-bookstore/server/login.php', {
-                            username: this.ruleForm.tel,
-                            password: this.ruleForm.pass
-                        }).then(response => { //用户名和密码将转为json传到后台接口              
-                            let res = response.data; //用res承接返回后台的json文件(像使用数组那样)
-                            if (res.status == '1') { //显示登录结果             
-                                console.log('登录成功');
-                                this.$message({
-                                    showClose: true,
-                                    message: '登录成功！',
-                                    type: 'success',
-                                    center: true
-                                });
-
-                                this.$cookies.set("status", "logined");
-                                this.$cookies.set("user_ID", res.ID);
-                                this.$cookies.set("Avatar", res.Avatar);
-
-                                this.$router.push({
-                                    path: '/home'
-                                });
-                            } else if (res.status == '0') {
-                                console.log('账号或密码错误！');
-                                this.$message({
-                                    showClose: true,
-                                    message: '账号或密码错误！',
-                                    type: 'error',
-                                    center: true
-                                });
-                            } else {
-                                console.log('登录失败');
-                                this.$message({
-                                    showClose: true,
-                                    message: '登录失败！请稍后重试！',
-                                    type: 'error',
-                                    center: true
-                                });
-                            }
-                        });
-                    } else {
-                        console.log("账号或密码错误！");
-                        return false;
-                    }
-                })
-            },
-            toReg() {
-                this.$router.push({
-                    path: '/register'
-                })
-            }
-        }
+export default {
+  data () {
+    // <!--验证手机号是否合法-->
+    let checkTel = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(' '))
+      } else if (!this.checkMobile(value)) {
+        callback(new Error(' '))
+      } else {
+        callback()
+      }
     }
+    // <!--验证密码-->
+    let validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(' '))
+      } else {
+        if (this.ruleForm.checkPass !== '') {
+          this.$refs.ruleForm.validateField('checkPass')
+        }
+        callback()
+      }
+    }
+
+    return {
+      ruleForm: {
+        pass: '',
+        tel: ''
+      },
+      rules: {
+        pass: [{
+          validator: validatePass,
+          trigger: 'change'
+        }],
+        tel: [{
+          validator: checkTel,
+          trigger: 'change'
+        }]
+      }
+    }
+  },
+  methods: {
+    // 验证手机号
+    checkMobile (str) {
+      let re = /^1\d{10}$/
+      if (re.test(str)) {
+        return true
+      } else {
+        return false
+      }
+    },
+    // <!--提交登录-->
+    submitForm (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          request({
+            url: Login,
+            params: {
+              phone: this.ruleForm.tel,
+              pass: this.ruleForm.pass
+            },
+            pack: ''
+          }).then(res => { // 用户名和密码将转为json传到后台接口
+            console.log(res)
+            if (res.state) { // 显示登录结果
+              console.log('登录成功')
+              this.$message({
+                showClose: true,
+                message: '登录成功！',
+                type: 'success',
+                center: true
+              })
+
+              this.$cookies.set('token', res.data.token)
+              this.$cookies.set('user_ID', res.data.id)
+              console.log(res.data.token, this.$cookies.get('token'), 777)
+              // this.$cookies.set('user_ID', res.id)
+              // this.$cookies.set('Avatar', res.avatar)
+
+              this.$router.push({
+                path: '/home'
+              })
+            } else {
+              console.log('账号或密码错误！')
+              this.$message({
+                showClose: true,
+                message: res.msg,
+                type: 'error',
+                center: true
+              })
+            }
+          })
+        } else {
+          console.log('账号或密码错误！')
+          return false
+        }
+      })
+    },
+    toReg () {
+      this.$router.push({
+        path: '/register'
+      })
+    }
+  }
+}
 </script>
 
 <style>

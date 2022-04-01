@@ -59,7 +59,7 @@ export default new Router({
                     component: category,
                     meta: {
                         keepAlive: true,
-                        title: '书籍分类'
+                        title: '专辑分类'
                     }
                 },
                 {

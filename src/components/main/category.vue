@@ -22,14 +22,16 @@
       <el-aside width="250px">
         <el-card class="leftNav">
           <img src="../../../static/cateNav.png" class="leftImg" />
-          <div
-            class="navItem"
-            :class="index == showCategoryIndex ? 'cur' : ''"
-            v-for="(item, index) in navItems"
-            :key="index"
-            @click="showCategory(index)"
-          >
-            {{ item }}
+          <div class="nav__wrapper">
+            <div
+              class="navItem"
+              v-for="(item, index) in navItems"
+              :class="{'cur' : index === showCategoryIndex}"
+              :key="item.id"
+              @click="showCategory(item.id, index)"
+            >
+              {{ item.name }}
+            </div>
           </div>
           <div class="navItem" @click="toTop()">
             <i class="el-icon-arrow-up" style="font-size: 23px"></i>
@@ -44,10 +46,7 @@
         <el-row>
           <el-card
             class="row"
-            v-for="(book, index) in Books[showCategoryIndex].slice(
-              (currentPage - 1) * pagesize,
-              currentPage * pagesize
-            )"
+            v-for="(book, index) in Books"
             :key="index"
             :body-style="{ padding: '0px' }"
           >
@@ -55,13 +54,13 @@
               class="img"
               @click="toInfo(book)"
               :src="
-                'https://www.xiaoqw.online/smallFrog-bookstore/img/' + book.img
+                'http://121.4.124.243/uploads/' + book.avatar
               "
             />
             <el-link class="name" @click="toInfo(book)" :underline="false">
-              {{ book.Name }}
+              {{ book.name }}
             </el-link>
-            <div class="author">{{ book.Author }}</div>
+            <div class="author">{{ book.master }}</div>
 
             <div style="position: absolute; bottom: 0;  margin-left: 200px;">
               <el-row type="flex" align="middle">
@@ -70,7 +69,7 @@
                     <i class="el-icon-goods icon"></i>
                   </button>
                 </el-col>
-                <el-col :span="12" class="price">¥ {{ book.Price }}</el-col>
+                <el-col :span="12" class="price">¥ {{ book.price }}</el-col>
               </el-row>
               <el-rate
                 class="rate"
@@ -88,7 +87,7 @@
             @current-change="handleCurrentChange"
             :current-page="currentPage"
             :page-size="pagesize"
-            :total="Books[showCategoryIndex].length"
+            :total="total"
           >
           </el-pagination>
         </el-row>
@@ -98,126 +97,146 @@
 </template>
 
 <script>
-import axios from "axios";
-import "element-ui/lib/theme-chalk/display.css";
+import { request } from '../../api/http'
+import { AllType, AllAlbum, AddCart } from '../../api/url'
+import 'element-ui/lib/theme-chalk/display.css'
 
 export default {
-  data() {
+  data () {
     return {
       loading: true,
-      scroll: 0, //第一步：定义初始滚动高度
-      activeIndex: "1",
+      scroll: 0, // 第一步：定义初始滚动高度
+      activeIndex: '1',
       bookPath: 1,
-      searchText: "", //搜索关键字
+      searchText: '', // 搜索关键字
       showCategoryIndex: 0,
-      navItems: ["全部书籍", "计算机类", "英语类", "其他类"],
-      Books: [[]],
+      navItems: [],
+      Books: [],
       currentPage: 1,
       pagesize: 20,
-    };
-  },
-  //第二步：mounted中的方法代表dom已经加载完毕
-  mounted: function () {
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  created() {
-    var address1 =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/allBooks.php";
-    var address2 =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/pcBooks.php";
-    var address3 =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/enBooks.php";
-    var address4 =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/otherBooks.php";
-
-    axios.post(address1).then((res) => {
-      this.Books[0] = res.data; //获取数据
-      console.log("success");
-      console.log(this.allBooks);
-    }),
-      axios.post(address2).then((res) => {
-        this.Books[1] = res.data; //获取数据
-        console.log("success");
-        console.log(this.pcBooks);
-      }),
-      axios.post(address3).then((res) => {
-        this.Books[2] = res.data; //获取数据
-        console.log("success");
-        console.log(this.enBooks);
-      }),
-      axios.post(address4).then((res) => {
-        this.Books[3] = res.data; //获取数据
-        console.log("success");
-        console.log(this.otherBooks);
-        this.loading = false;
-      });
-  },
-  methods: {
-    handleCurrentChange: function (currentPage) {
-      this.currentPage = currentPage;
-    },
-    //第三步：用于存放页面函数
-    handleScroll() {
-      this.scroll = $(window).height() + $(document).scrollTop();
-    },
-    toTop() {
-      document.body.scrollTop = 0;
-      document.documentElement.scrollTop = 0;
-    },
-    toInfo(e) {
-      this.$router.push({
-        path: "/bookInfo",
-        query: {
-          ID: e.ID,
-        },
-      });
-    },
-    showCategory(index) {
-      this.showCategoryIndex = index;
-    },
-    addToCart(e) {
-      this.$confirm("确定将此书加入购物车?", "smallFrog", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          var address =
-            "https://www.xiaoqw.online/smallFrog-bookstore/server/addToCart.php";
-
-          axios
-            .post(address, {
-              user_ID: this.$cookies.get("user_ID"),
-              book_ID: e.ID,
-              book_Img: e.img,
-              book_Name: e.Name,
-              unit_Price: e.Price,
-              count: 1,
-            })
-            .then((res) => {
-              console.log("success");
-            });
-
-          this.$message({
-            type: "success",
-            message: "成功加入购物车！",
-          });
-        })
-        .catch(() => {});
-    },
-  },
-  //第四步：当再次进入（前进或者后退）时，只触发activated（注：只有在keep-alive加载时调用）
-  activated() {
-    if (this.scroll > 0) {
-      window.scrollTo(0, this.scroll);
-      window.addEventListener("scroll", this.handleScroll);
+      total: 0
     }
   },
-  //第五步：deactivated 页面退出时关闭事件 防止其他页面出现问题
-  deactivated() {
-    window.removeEventListener("scroll", this.handleScroll);
+  // 第二步：mounted中的方法代表dom已经加载完毕
+  mounted: function () {
+    window.addEventListener('scroll', this.handleScroll)
   },
-};
+  async created () {
+    await this.getMusicCategory()
+    const id = this.navItems[0] && this.navItems[0].id
+    await this.getAllAlbum(id)
+  },
+  methods: {
+    // 获取分类
+    getMusicCategory () {
+      return request({
+        url: AllType,
+        pack: ''
+      })
+        .then(res => {
+          console.log(res, 333)
+          if (res.code === 200) {
+            this.navItems = res.data
+          }
+        })
+    },
+    // 获取不同分类专辑信息
+    getAllAlbum (type) {
+      // const type = this.navItems[0].hasOwnProperty('id') ? this.navItems[0].id : ''
+      const params = {
+        pageSize: 10,
+        pageNum: 1,
+        type
+      }
+      return request({
+        url: AllAlbum,
+        params,
+        pack: ''
+      })
+        .then(res => {
+          console.log(res, 444)
+          this.loading = false
+          if (res.code === 200) {
+            this.Books = res.data.list
+            this.total = res.data.totalSize
+          }
+        })
+        .catch(err => {
+          console.log(err, 444)
+        })
+    },
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage
+    },
+    // 第三步：用于存放页面函数
+    handleScroll () {
+      this.scroll = $(window).height() + $(document).scrollTop()
+    },
+    toTop () {
+      document.body.scrollTop = 0
+      document.documentElement.scrollTop = 0
+    },
+    toInfo (e) {
+      this.$router.push({
+        path: '/bookInfo',
+        query: {
+          ID: e.id
+        }
+      })
+    },
+    showCategory (id, index) {
+      this.showCategoryIndex = index
+      this.getAllAlbum(id)
+    },
+    addToCart (e) {
+      this.$confirm('确定将此书加入购物车?', 'smallFrog', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          console.log(this.$cookies.get('token'), 55);
+          request({
+            url: AddCart,
+            pack: '',
+            params: {
+              aid: e.id,
+              count: 1
+            },
+            headersParams: {
+              'token': this.$cookies.get('token')
+            }
+          })
+            .then((res) => {
+              console.log('success', res)
+              if (res.code === 200) {
+                this.$message({
+                  type: 'success',
+                  message: '成功加入购物车！'
+                })
+              } else {
+                this.$message({
+                  type: 'error',
+                  message: res.msg
+                })
+              }
+            })
+        })
+        .catch(() => {})
+    }
+  },
+  // 第四步：当再次进入（前进或者后退）时，只触发activated（注：只有在keep-alive加载时调用）
+  activated () {
+    if (this.scroll > 0) {
+      window.scrollTo(0, this.scroll)
+      window.addEventListener('scroll', this.handleScroll)
+    }
+  },
+  // 第五步：deactivated 页面退出时关闭事件 防止其他页面出现问题
+  deactivated () {
+    window.removeEventListener('scroll', this.handleScroll)
+  }
+}
 </script>
 
 <style scoped>
@@ -242,7 +261,25 @@ export default {
   color: #ffffff;
   margin-left: 20px;
 }
-
+.nav__wrapper {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 250px;
+  padding-right: 5px;
+}
+.nav__wrapper::-webkit-scrollbar {
+  width: 2px;
+}
+.nav__wrapper::-webkit-scrollbar-thumb {/*滚动条里面小方块*/
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    background: #EDEDED;
+}
+.nav__wrapper::-webkit-scrollbar-track {/*滚动条里面轨道*/
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    background: #4f6e9d;
+}
 /* main里的样式 */
 .leftNav {
   top: 50%;
@@ -254,6 +291,7 @@ export default {
   border-radius: 20px;
   background-color: #4f6e9d;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+  z-index: 1;
 }
 
 .leftNav .leftImg {

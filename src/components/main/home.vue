@@ -3,7 +3,7 @@
     <el-container>
       <div style="display: flex; margin-top: 40px; margin-left: 150px">
         <div>
-          <h1 class="homeTitle">Album 商城</h1>
+          <h1 class="homeTitle">音乐专辑 Music</h1>
           <p class="content">正版音乐授权 听有保障的版权音乐</p>
           <el-button class="startBtn" @click="toCate()">SHOPPING</el-button>
         </div>
@@ -58,7 +58,8 @@
 </template>
 
 <script>
-import axios from "axios";
+import {request} from '../../api/http'
+import { SellingAlbum } from '../../api/url'
 // import animate from 'animate.css'
 // import {WOW} from 'wowjs';
 
@@ -70,16 +71,28 @@ export default {
     };
   },
   created() {
-    var address =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/recommend.php";
+    // var address =
+    //   "https://www.xiaoqw.online/smallFrog-bookstore/server/recommend.php";
 
-    axios.post(address).then((res) => {
-      //这里是ES6的写法，get请求的地址
-      this.recBooks = res.data; //获取数据
-      console.log("success");
-      console.log(this.recBooks);
-      this.transRec();
-    });
+    // axios.post(address).then((res) => {
+    //   //这里是ES6的写法，get请求的地址
+    //   this.recBooks = res.data; //获取数据
+    //   console.log("success");
+    //   console.log(this.recBooks);
+    //   this.transRec();
+    // });
+    const params = {
+      pageSize: 10,
+      pageNum: 1,
+      hotType: 3
+    }
+    request({
+      url: SellingAlbum,
+      params,
+      pack: ''
+    }).then(res => {
+      console.log(res,33);
+    })
   },
   // mounted() {
   // // 在项目加载完成之后初始化wow

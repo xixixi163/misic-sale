@@ -107,7 +107,7 @@ export default {
       var address =
         "https://www.xiaoqw.online/smallFrog-bookstore/server/addToCart.php";
 
-      if (this.$cookies.get("status") == "logined") {
+      if (this.$cookies.get("token")) {
         axios
           .post(address, {
             user_ID: this.$cookies.get("user_ID"),
@@ -145,7 +145,7 @@ export default {
       this.cart[0]["count"] = this.num;
     },
     toSettle() {
-      if (this.$cookies.get("status") == "logined") {
+      if (this.$cookies.get("token")) {
         this.setCart();
 
         this.$router.push({

@@ -39,125 +39,120 @@
 </template>
 
 <script>
-    import axios from 'axios'
-
-    export default {
-        data() {
-            // <!--验证手机号是否合法-->
-            let checkTel = (rule, value, callback) => {
-                if (value === '') {
-                    callback(new Error(' '))
-                } else if (!this.checkMobile(value)) {
-                    callback(new Error(' '))
-                } else {
-                    callback()
-                }
-            }
-            // <!--验证密码-->
-            let validatePass1 = (rule, value, callback) => {
-                if (value === "") {
-                    callback(new Error(" "))
-                } else {
-                    if (this.ruleForm.checkPass !== "") {
-                        this.$refs.ruleForm.validateField("checkPass");
-                    }
-                    callback()
-                }
-            }
-            // <!--二次验证密码-->
-            let validatePass2 = (rule, value, callback) => {
-                if (value === "") {
-                    callback(new Error(" "));
-                } else if (value !== this.ruleForm.pass) {
-                    callback(new Error(" "));
-                } else {
-                    callback();
-                }
-            }
-            return {
-                ruleForm: {
-                    pass: "",
-                    checkPass: "",
-                    tel: "",
-                },
-                rules: {
-                    pass: [{
-                        validator: validatePass1,
-                        trigger: 'change'
-                    }],
-                    checkPass: [{
-                        validator: validatePass2,
-                        trigger: 'change'
-                    }],
-                    tel: [{
-                        validator: checkTel,
-                        trigger: 'change'
-                    }],
-                },
-            }
-        },
-        methods: {
-            // 验证手机号
-            checkMobile(str) {
-                let re = /^1\d{10}$/
-                if (re.test(str)) {
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            // <!--提交注册-->
-            submitForm(formName) {
-                this.$refs[formName].validate(valid => {
-                    if (valid) {
-                        axios.post('https://www.xiaoqw.online/smallFrog-bookstore/server/register.php', {
-                            username: this.ruleForm.tel,
-                            password: this.ruleForm.pass
-                        }).then(response => { //用户名和密码将转为json传到后台接口              
-                            let res = response.data; //用res承接返回后台的json文件(像使用数组那样)
-                            if (res.status == '1') { //显示登录结果             
-                                console.log('注册成功');
-                                this.$message({
-                                    showClose: true,
-                                    message: '注册成功！',
-                                    type: 'success',
-                                    center: true
-                                });
-
-                                this.$router.push({
-                                    path: '/login'
-                                });
-                            } else if (res.status == '0') { //显示登录结果
-                                console.log('账户名已被使用！');
-                                this.$message({
-                                    showClose: true,
-                                    message: '账户名已被使用！',
-                                    type: 'error',
-                                    center: true
-                                });
-                            } else {
-                                console.log('注册失败');
-                                this.$message({
-                                    showClose: true,
-                                    message: '注册失败！请稍后重试！',
-                                    type: 'error',
-                                    center: true
-                                });
-                            }
-                        });
-                    } else {
-                        console.log("抱歉！注册失败！请稍后重试！");
-                        return false;
-                    }
-                })
-            },
-            toLog() {
-                this.$router.push({
-                    path: '/login'
-                })
-            }
-        }
+import { Register } from '../../api/url'
+import { request } from '../../api/http'
+export default {
+  data () {
+    // <!--验证手机号是否合法-->
+    let checkTel = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(' '))
+      } else if (!this.checkMobile(value)) {
+        callback(new Error(' '))
+      } else {
+        callback()
+      }
     }
+    // <!--验证密码-->
+    let validatePass1 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(' '))
+      } else {
+        if (this.ruleForm.checkPass !== '') {
+          this.$refs.ruleForm.validateField('checkPass')
+        }
+        callback()
+      }
+    }
+    // <!--二次验证密码-->
+    let validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error(' '))
+      } else if (value !== this.ruleForm.pass) {
+        callback(new Error(' '))
+      } else {
+        callback()
+      }
+    }
+    return {
+      ruleForm: {
+        pass: '',
+        checkPass: '',
+        tel: ''
+      },
+      rules: {
+        pass: [{
+          validator: validatePass1,
+          trigger: 'change'
+        }],
+        checkPass: [{
+          validator: validatePass2,
+          trigger: 'change'
+        }],
+        tel: [{
+          validator: checkTel,
+          trigger: 'change'
+        }]
+      }
+    }
+  },
+  methods: {
+    // 验证手机号
+    checkMobile (str) {
+      let re = /^1\d{10}$/
+      if (re.test(str)) {
+        return true
+      } else {
+        return false
+      }
+    },
+    // <!--提交注册-->
+    submitForm (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          request({
+            url: Register,
+            params: {
+              name: '',
+              phone: this.ruleForm.tel,
+              pass: this.ruleForm.pass
+            },
+            pack: ''
+          }).then(res => { // 用户名和密码将转为json传到后台接口
+            if (res.state) { // 显示登录结果
+              console.log('注册成功')
+              this.$message({
+                showClose: true,
+                message: '注册成功！',
+                type: 'success',
+                center: true
+              })
+
+              this.$router.push({
+                path: '/login'
+              })
+            } else {
+              this.$message({
+                showClose: true,
+                message: res.msg,
+                type: 'error',
+                center: true
+              })
+            }
+          })
+        } else {
+          console.log('抱歉！注册失败！请稍后重试！')
+          return false
+        }
+      })
+    },
+    toLog () {
+      this.$router.push({
+        path: '/login'
+      })
+    }
+  }
+}
 </script>
 
 <style>
