@@ -196,7 +196,6 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          console.log(this.$cookies.get('token'), 55);
           request({
             url: AddCart,
             pack: '',

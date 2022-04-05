@@ -61,7 +61,12 @@
               <el-dropdown-menu slot="dropdown">
 
                 <el-dropdown-item icon="el-icon-circle-close"
-                  ><label @click="exit()">退出登录</label></el-dropdown-item
+                  >
+                  <label @click="setting()">个人中心</label></el-dropdown-item
+                >
+                <el-dropdown-item icon="el-icon-circle-close"
+                  >
+                  <label @click="exit()">退出登录</label></el-dropdown-item
                 >
               </el-dropdown-menu>
             </el-dropdown>
@@ -101,7 +106,7 @@
       </transition>
     </el-main>
 
-    <!-- <el-footer
+    <el-footer
       class="footer"
       height="220px"
       v-show="$route.name !== 'login' && $route.name !== 'register'"
@@ -151,7 +156,7 @@
           >
         </el-col>
       </el-row>
-    </el-footer> -->
+    </el-footer>
   </el-container>
 </template>
 

@@ -89,93 +89,102 @@
 </template>
 
 <script>
-    import axios from "axios";
+import { request } from '../../api/http'
+import { SeeCart } from '../../api/url'
 
-    export default {
-        inject: ['reload'],
-        data() {
-            return {
-                cart: [],
-                count: 0,
-                totalPrice: 0
-            }
-        },
-        created() {
-            var address = "https://www.xiaoqw.online/smallFrog-bookstore/server/userCart.php";
-            var user_ID = this.$cookies.get('user_ID');
-            var count = 0;
-            var totalPrice = 0;
-
-            axios.post(address, user_ID).then(res => {
-                this.cart = res.data; //获取数据
-                console.log("success");
-                console.log(this.cart);
-
-                for (let i = 0; i < this.cart.length; i++) {
-                    count += parseFloat(this.cart[i].count);
-                    totalPrice += parseFloat(this.cart[i].unit_Price * this.cart[i].count);
-                }
-                this.count = count;
-                this.totalPrice = totalPrice;
-            });
-        },
-        methods: {
-            cartDelete(e) {
-                var address = "https://www.xiaoqw.online/smallFrog-bookstore/server/cartDelete.php";
-
-                axios.post(address, {
-                    user_ID: e.user_ID,
-                    book_ID: e.book_ID
-                }).then(response => {
-                    console.log('删除成功');
-                    this.$message({
-                        showClose: true,
-                        message: '删除成功！',
-                        type: 'success',
-                        center: true
-                    });
-                    this.reload();
-                    // let res = response.data;
-                    // if (res.status == '1') {
-                    //     console.log('删除成功');
-                    //     this.$message({
-                    //         showClose: true,
-                    //         message: '删除成功！',
-                    //         type: 'success',
-                    //         center: true
-                    //     });
-                    //     this.reload();
-                    // } else {
-                    //     console.log('删除失败！');
-                    //     this.$message({
-                    //         showClose: true,
-                    //         message: '删除失败！',
-                    //         type: 'error',
-                    //         center: true
-                    //     });
-                    // }
-                });
-            },
-            toSettle() {
-                if (!this.cart[0]) {
-                    this.$message({
-                        showClose: true,
-                        message: '购物车里还没有商品噢！',
-                        type: 'warning',
-                        center: true
-                    });
-                }
-                else {
-                    this.$router.push({
-                        path: "/shopping/settle",
-                        query: {
-                            cart: this.cart
-                        }
-                    });
-                }
-            }
-        }
+export default {
+  inject: ['reload'],
+  data () {
+    return {
+      cart: [],
+      count: 0,
+      totalPrice: 0
     }
+  },
+  created () {
+    var count = 0
+    var totalPrice = 0
+    this.pageSize = 1
+    request({
+      url: SeeCart,
+      params: {
+        pageSize: this.pageSize,
+        pageNum: 10
+      },
+      pack: '',
+      headersParams: {
+        token: this.$cookies.get('token')
+      }
+    }).then(res => {
+      console.log(res, 4444)
+      this.cart = res.data // 获取数据
+      console.log('success')
+      console.log(this.cart)
+
+      for (let i = 0; i < this.cart.length; i++) {
+        count += parseFloat(this.cart[i].count)
+        totalPrice += parseFloat(this.cart[i].unit_Price * this.cart[i].count)
+      }
+      this.count = count
+      this.totalPrice = totalPrice
+    })
+  },
+  methods: {
+    cartDelete (e) {
+      var address = 'https://www.xiaoqw.online/smallFrog-bookstore/server/cartDelete.php'
+
+      axios.post(address, {
+        user_ID: e.user_ID,
+        book_ID: e.book_ID
+      }).then(response => {
+        console.log('删除成功')
+        this.$message({
+          showClose: true,
+          message: '删除成功！',
+          type: 'success',
+          center: true
+        })
+        this.reload()
+        // let res = response.data;
+        // if (res.status == '1') {
+        //     console.log('删除成功');
+        //     this.$message({
+        //         showClose: true,
+        //         message: '删除成功！',
+        //         type: 'success',
+        //         center: true
+        //     });
+        //     this.reload();
+        // } else {
+        //     console.log('删除失败！');
+        //     this.$message({
+        //         showClose: true,
+        //         message: '删除失败！',
+        //         type: 'error',
+        //         center: true
+        //     });
+        // }
+      })
+    },
+    toSettle () {
+      if (!this.cart[0]) {
+        this.$message({
+          showClose: true,
+          message: '购物车里还没有商品噢！',
+          type: 'warning',
+          center: true
+        })
+      } else {
+        this.$router.push({
+          path: '/shopping/settle',
+          query: {
+            cart: this.cart
+          }
+        })
+      }
+    }
+  }
+}
 </script>
 
 <style scoped>
