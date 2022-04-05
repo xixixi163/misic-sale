@@ -89,7 +89,7 @@ const transRequestData = (data, pack = '') => {
  * @param {Array} codeGroups 请求code码白名单
  * @returns
  */
-const getAxiosRes = (axiosPromise, {url, params, timestamp, codeGroups}) => {
+const getAxiosRes = (axiosPromise, { url, params, timestamp, codeGroups }) => {
   return axiosPromise
     .then(response => {
       const data = response.data
@@ -150,7 +150,8 @@ export const request = ({
 }) => {
   const contentTypeObj = {
     form: 'application/x-www-form-urlencoded',
-    json: 'application/json'
+    json: 'application/json',
+    multipart: 'multipart/form-data;'
   }
   // 设置开始时间用以计算接口时间
   let timestamp = new Date().getTime()
@@ -158,7 +159,7 @@ export const request = ({
 
   let urlRex = /^\/|http.*/i
   return new Promise((resolve, reject) => {
-    console.log(headersParams, ...headersParams, 666);
+    console.log(headersParams, ...headersParams, 666)
     let axiosConfig = {
       url: urlRex.test(url) ? url : `/${url}`,
       method,
@@ -201,7 +202,7 @@ export const request = ({
 
     let axiosPromise = customAxios(axiosConfig)
     // 调用请求返回，不在白名单的请求默认再执行一次
-    let axiosParams = {url, params, timestamp, codeGroups}
+    let axiosParams = { url, params, timestamp, codeGroups }
     let resPromise = getAxiosRes(axiosPromise, { ...axiosParams })
     resPromise.then(res => {
       // 不在白名单的请求默认，再请求一次
@@ -219,7 +220,7 @@ export const request = ({
       }
     })
   }).catch((err) => {
-    console.log(err);
+    console.log(err)
     return Promise.resolve({ code: -10 })
   })
 }
@@ -249,7 +250,8 @@ export const ajax = ({
     retryCount,
     group,
     notCancelGroups,
-    codeWhiteGroups})
+    codeWhiteGroups
+  })
 }
 
 export default {

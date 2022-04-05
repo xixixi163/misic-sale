@@ -2,12 +2,13 @@ const BASE_URL = 'http://121.4.124.243/'
 const SellingAlbum = `${BASE_URL}album/getSellingAlbum`
 const AllType = `${BASE_URL}albumType/getAllType`
 const AllAlbum = `${BASE_URL}album/getAllAlbum`
+const AlbumById = `${BASE_URL}album/getAlbumById` // 根据id查专辑
 const Login = `${BASE_URL}user/login`
 const Register = `${BASE_URL}user/register`
 const AddCart = `${BASE_URL}car/addCar`
 const SeeCart = `${BASE_URL}car/showCar` // 查看购物车
 const calcCart = `${BASE_URL}order/cleanCar` // 结算购物车
-const RemoveCart = `${BASE_URL}car/removeCar` // 移出购物车
+const RemoveCart = `${BASE_URL}car/removeManyCar` // 移出购物车
 const RemoveAllCart = `${BASE_URL}car/removeAllCar` // 移出所有商品到购物车
 const AllOrder = `${BASE_URL}order/findMyOrder` // 查看订单
 const saveOrder = `${BASE_URL}order/saveOrder` // 下订单
@@ -20,9 +21,9 @@ const ModifyReceiveAddress = `${BASE_URL}receiving/modifyReceiving` // 修改收
 const SureReceive = `${BASE_URL}order/check` // 确认收获
 const Refund = `${BASE_URL}order/refund` // 退款
 const ModifyPass = `${BASE_URL}user/changePass` // 修改密码
-const ModifyUser = `${BASE_URL}admin/modifyUser` // 修改信息
-// const = `${BASE_URL}`
-// const = `${BASE_URL}`
+const ModifyUser = `${BASE_URL}user/modifyUser` // 修改信息
+const ModifyAvatar = `${BASE_URL}user/modifyAvatar`
+const UserById = `${BASE_URL}user/findUserById`
 // const = `${BASE_URL}`
 
 export {
@@ -47,5 +48,8 @@ export {
   SureReceive,
   Refund,
   ModifyPass,
-  ModifyUser
+  ModifyUser,
+  ModifyAvatar,
+  UserById,
+  AlbumById
 }
