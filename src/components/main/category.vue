@@ -41,6 +41,7 @@
       </el-aside>
 
       <el-main
+        v-if="Books.length > 0"
         v-loading.fullscreen.lock="loading"
         element-loading-background="#FFFFFF"
       >
@@ -93,6 +94,7 @@
           </el-pagination>
         </el-row>
       </el-main>
+      <empty v-else />
     </el-container>
   </div>
 </template>
@@ -101,8 +103,12 @@
 import { request } from '../../api/http'
 import { AllType, AllAlbum, AddCart } from '../../api/url'
 import 'element-ui/lib/theme-chalk/display.css'
+import Empty from '../empty/index.vue'
 
 export default {
+  components: {
+    Empty
+  },
   data () {
     return {
       loading: true,
@@ -116,6 +122,17 @@ export default {
       currentPage: 1,
       pagesize: 20,
       total: 0
+    }
+  },
+  watch: {
+    $route: {
+      handler (val) {
+        if (val.query.search) {
+          console.log(val, 888888);
+          this.getAllAlbum(0, val.query.search)
+        }
+      },
+      deep: true
     }
   },
   // 第二步：mounted中的方法代表dom已经加载完毕
@@ -138,16 +155,22 @@ export default {
           console.log(res, 333)
           if (res.code === 200) {
             this.navItems = res.data
+            this.navItems.unshift({
+              id: 0,
+              name: '全部'
+            })
           }
         })
     },
     // 获取不同分类专辑信息
-    getAllAlbum (type) {
+    getAllAlbum (type, search) {
+      let typeIndex = type === 0 ? '' : type
       // const type = this.navItems[0].hasOwnProperty('id') ? this.navItems[0].id : ''
       const params = {
-        pageSize: 10,
-        pageNum: 1,
-        type
+        pageSize: this.pagesize,
+        pageNum: this.currentPage,
+        type: typeIndex,
+        search
       }
       return request({
         url: AllAlbum,

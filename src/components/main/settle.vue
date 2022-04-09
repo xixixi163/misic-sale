@@ -27,7 +27,7 @@
 
         <div class="commodity">
           <el-row type="flex" align="middle">
-            <!-- <el-col :span="3" class="cTitle">商品图片</el-col> -->
+            <el-col :span="3" class="cTitle">专辑图片</el-col>
             <el-col :span="9" class="cTitle">专辑名称</el-col>
             <el-col :span="6" class="cTitle">歌手</el-col>
             <el-col :span="6" class="cTitle">单价</el-col>
@@ -38,12 +38,12 @@
         <div v-if="this.cart[0]">
           <div class="commodity" v-for="(book, index) in cart" :key="index">
             <el-row type="flex" align="middle">
-              <!-- <el-col :span="3">
-                                <img class="bookImg" src="https://s4.ax1x.com/2022/02/18/H7ST6f.jpg">
-                            </el-col> -->
-              <el-col :span="9">{{ book.book_Name }}</el-col>
-              <el-col :span="6">歌手名称</el-col>
-              <el-col :span="6">{{ book.unit_Price }}</el-col>
+              <el-col :span="3">
+                                <img class="bookImg" :src="'http://121.4.124.243/uploads/' + book.avatar">
+                            </el-col>
+              <el-col :span="9">{{ book.name }}</el-col>
+              <el-col :span="6">{{ book.master }}</el-col>
+              <el-col :span="6">{{ book.price }}</el-col>
               <el-col :span="6">{{ book.count }}</el-col>
             </el-row>
           </div>
@@ -52,12 +52,12 @@
           <div class="orderInfo">
             <div class="left">
               <div class="infoTitle">收货信息</div>
-              <div class="info">名字：{{ userInfo.Logname }}</div>
-              <div class="info">电话：{{ userInfo.Phone }}</div>
-              <div class="info">地址：{{ userInfo.Address }}</div>
+              <div class="info">名字：{{ userInfo.name }}</div>
+              <div class="info">电话：{{ userInfo.phone }}</div>
+              <div class="info">地址：{{ userInfo.address }}</div>
             </div>
-            <el-button class="modify" type="info" @click="handleEdit()" plain
-              >修改</el-button
+            <el-button class="modify" type="info" @click="chooseReceive" plain
+              >选择收获地址</el-button
             >
           </div>
           <el-divider></el-divider>
@@ -72,7 +72,7 @@
               <div class="payPrice">
                 应付金额：{{ totalPrice + postage }} 元
               </div>
-              <el-button class="submit" type="danger" @click="toPay(userInfo)"
+              <el-button class="submit" type="primary" @click="toPay(userInfo)"
             >提交订单</el-button
           >
             </div>
@@ -108,129 +108,118 @@
         </div>
       </div>
 
-      <!-- 收货信息编辑弹出框 -->
-      <el-dialog title="修改收货信息" :visible.sync="editVisible" width="35%">
-        <el-form
-          label-position="left"
-          :rules="rules"
-          ref="userInfo"
-          :model="userInfo"
-          label-width="100px"
-        >
-          <el-form-item label="名字" prop="Logname">
-            <el-input v-model.number="userInfo.Logname"></el-input>
-          </el-form-item>
-          <el-form-item label="电话" prop="Phone">
-            <el-input v-model.number="userInfo.Phone"></el-input>
-          </el-form-item>
-          <el-form-item label="收货地址" prop="Address">
-            <el-input type="textarea" v-model="userInfo.Address"></el-input>
-          </el-form-item>
-        </el-form>
-
-        <div slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="modify('userInfo')" plain
-            >修改</el-button
-          >
-          <el-button type="danger" @click="editVisible = false" plain
-            >取消</el-button
-          >
-        </div>
-      </el-dialog>
+      <receive-address v-model="showReceive" :address-list="addressList" @update-address="getReceiveInfo" @choose-address="choosedAddress" />
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import { request } from '../../api/http'
+import { SeeReceiveAddress, AddReceiveAddress } from '../../api/url'
+import ReceiveAddress from '../receive-address/index'
 
 export default {
-  inject: ["reload"],
-  data() {
+  inject: ['reload'],
+  components: {
+    ReceiveAddress
+  },
+  data () {
     return {
-      input: "",
-      userInfo: [],
+      input: '',
+      userInfo: {},
       postage: 0,
       cart: [],
       count: 0,
       totalPrice: 0,
       editVisible: false,
-    };
+      showReceive: false,
+      addressList: []
+    }
   },
-  created() {
-    var address =
-      "https://www.xiaoqw.online/smallFrog-bookstore/server/settleUserInfo.php";
-    var user_ID = this.$cookies.get("user_ID");
-    let count = 0;
-    let totalPrice = 0;
+  async created () {
+    let count = 0
+    let totalPrice = 0
 
-    this.cart = this.$route.query.cart;
+    this.cart = this.$route.query.cart
 
     for (let i = 0; i < this.cart.length; i++) {
-      count += parseFloat(this.cart[i].count);
-      totalPrice += parseFloat(this.cart[i].unit_Price * this.cart[i].count);
+      count += parseFloat(this.cart[i].count)
+      totalPrice += parseFloat(this.cart[i].price * this.cart[i].count)
     }
-    this.count = count;
-    this.totalPrice = totalPrice;
+    this.count = count
+    this.totalPrice = totalPrice
 
-    axios.post(address, user_ID).then((res) => {
-      this.userInfo = res.data; //获取数据
-      console.log("success");
-      console.log(this.userInfo);
-    });
+    await this.getReceiveInfo()
   },
   methods: {
-    goBack() {
-      this.$router.go(-1);
+    choosedAddress (address) {
+      this.userInfo = address
     },
-    toCart() {
+    getReceiveInfo () {
+      return request({
+        url: SeeReceiveAddress,
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        if (res.state) {
+          this.addressList = res.data
+          this.userInfo = res.data[0]
+        }
+      })
+    },
+    goBack () {
+      this.$router.go(-1)
+    },
+    toCart () {
       this.$router.push({
-        path: "/shopping/cart",
-      });
+        path: '/shopping/cart'
+      })
     },
-    // 编辑操作
-    handleEdit() {
-      this.editVisible = true;
-    },
-    modify(formName) {
+    modify (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log("修改成功！");
+          console.log('修改成功！', valid)
           this.$message({
             showClose: true,
-            message: "修改成功！",
-            type: "success",
-            center: true,
-          });
-          this.editVisible = false;
+            message: '修改成功！',
+            type: 'success',
+            center: true
+          })
+          this.editVisible = false
         } else {
-          console.log("error!");
-          return false;
+          console.log('error!')
+          return false
         }
-      });
+      })
     },
-    toPay(e) {
+    toPay (e) {
       if (!this.cart[0]) {
         this.$message({
           showClose: true,
-          message: "无订单信息！",
-          type: "warning",
-          center: true,
-        });
+          message: '无订单信息！',
+          type: 'warning',
+          center: true
+        })
       } else {
         this.$router.push({
-          path: "/shopping/pay",
+          path: '/shopping/pay',
           query: {
             User_name: e.ID,
             User_tel: e.Phone,
             User_address: e.Address,
-            cart: this.cart,
-          },
-        });
+            cart: this.cart
+          }
+        })
       }
     },
-  },
-};
+    chooseReceive () {
+      console.log('kkkkkkk')
+      this.showReceive = true
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -323,7 +312,7 @@ export default {
 }
 
 .settle .viewBox .orderInfo .modify {
-  width: 100px;
+  width: 150px;
   height: 40px;
   border-radius: 0;
   font-size: 16px;
@@ -359,6 +348,10 @@ export default {
   margin-top: 30px;
   font-size: 20px;
   color: #4f6e9d;
+  float: right;
+}
+.submit {
+  margin-top: 10px;
   float: right;
 }
 </style>

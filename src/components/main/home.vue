@@ -21,10 +21,9 @@
       <div
         class="recLine"
         data-wow-duration="2s"
-        v-for="(books, index) in transRecBooks"
-        :key="index"
+        v-for="(music) in musicList"
+        :key="music.id"
       >
-        <div v-for="(book, index) in books" :key="index">
           <el-card
             slot="reference"
             class="wow slideInUp card"
@@ -34,24 +33,23 @@
               class="img"
               @click="toInfo(book)"
               :src="
-                'http://www.xiaoqw.online/smallFrog-bookstore/img/' + book.img
+                'http://121.4.124.243/uploads/' + music.avatar
               "
             />
             <div class="mask">
-              <el-link class="name" @click="toInfo(book)" :underline="false">
-                {{ book.Name }}
+              <el-link class="name" @click="toInfo(music)" :underline="false">
+                {{ music.name }}
               </el-link>
-              <div class="singer">歌手名字</div>
-              <div class="time">2010发行日期</div>
+              <div class="singer">{{music.master}}</div>
+              <div class="time">{{music.releasetime}}</div>
               <el-rate
                 class="rate"
-                v-model="book.Commend"
+                v-model="rate"
                 :colors="colors"
                 disabled
               ></el-rate>
             </div>
           </el-card>
-        </div>
       </div>
     </div>
   </div>
@@ -64,13 +62,14 @@ import { SellingAlbum } from '../../api/url'
 // import {WOW} from 'wowjs';
 
 export default {
-  data() {
+  data () {
     return {
-      recBooks: [],
-      transRecBooks: [],
-    };
+      musicList: [],
+      rate: 3.9,
+      colors: ['#99A9BF', '#F7BA2A', '#FF9900']
+    }
   },
-  created() {
+  created () {
     // var address =
     //   "https://www.xiaoqw.online/smallFrog-bookstore/server/recommend.php";
 
@@ -81,18 +80,7 @@ export default {
     //   console.log(this.recBooks);
     //   this.transRec();
     // });
-    const params = {
-      pageSize: 10,
-      pageNum: 1,
-      hotType: 3
-    }
-    request({
-      url: SellingAlbum,
-      params,
-      pack: ''
-    }).then(res => {
-      console.log(res,33);
-    })
+
   },
   // mounted() {
   // // 在项目加载完成之后初始化wow
@@ -103,31 +91,38 @@ export default {
   //     var wow=new WOW(options);
   // },
   methods: {
-    transRec() {
-      var Arr = [];
-      for (var i = 0, idx = -1; i < this.recBooks.length; i++) {
-        i % 4 == 0 && idx++;
-        if (Object.prototype.toString.call(Arr[idx]) != "[object Array]")
-          Arr[idx] = [];
-        Arr[idx].push(this.recBooks[i]);
+    getHot () {
+      const params = {
+        pageSize: 10,
+        pageNum: 1,
+        hotType: 3
       }
-      this.transRecBooks = Arr;
+      request({
+        url: SellingAlbum,
+        params,
+        pack: ''
+      }).then(res => {
+        console.log(res, 33)
+        if (res.state) {
+          this.musicList = res.data
+        }
+      })
     },
-    toInfo(e) {
+    toInfo (e) {
       this.$router.push({
-        path: "/bookInfo",
+        path: '/bookInfo',
         query: {
-          ID: e.ID,
-        },
-      });
+          ID: e.id
+        }
+      })
     },
-    toCate(e) {
+    toCate (e) {
       this.$router.push({
-        path: "/category",
-      });
-    },
-  },
-};
+        path: '/category'
+      })
+    }
+  }
+}
 </script>
 
 <style scoped>

@@ -112,9 +112,9 @@ export default {
 
               this.$cookies.set('token', res.data.token)
               this.$cookies.set('user_ID', res.data.id)
-              console.log(res.data.token, this.$cookies.get('token'), 777)
-              // this.$cookies.set('user_ID', res.id)
-              // this.$cookies.set('Avatar', res.avatar)
+              if (res.data.avatar) {
+                this.$cookies.set('Avatar', `http://121.4.124.243/uploads/${res.data.avatar}`)
+              }
 
               this.$router.push({
                 path: '/home'

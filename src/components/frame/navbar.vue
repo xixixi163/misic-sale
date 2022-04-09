@@ -13,13 +13,13 @@
         <el-col :xs="16" :sm="13" :md="10" :lg="8">
           <el-menu
             :default-active="$route.path"
-            router="true"
+            :router="true"
             mode="horizontal"
             active-text-color="#4F6E9D"
           >
             <el-menu-item index="/home">首页</el-menu-item>
             <el-menu-item index="/category">专辑分类</el-menu-item>
-            <el-menu-item index="/newProduct">新货上架</el-menu-item>
+            <!-- <el-menu-item index="/newProduct">新货上架</el-menu-item> -->
             <!-- <el-menu-item index="/onSale">特价市场</el-menu-item> -->
           </el-menu>
         </el-col>
@@ -30,10 +30,8 @@
             active-text-color="#4F6E9D"
             size="small"
             prefix-icon="el-icon-search"
-            v-model="input"
-            @focus="InputFocus"
-            @blur="InputBlur"
-            @confirm="toSearch()"
+            v-model="input" 
+            @keyup.enter.native="toSearch()"
           >
           </el-input>
         </el-col>
@@ -54,13 +52,13 @@
           <div v-if="this.$cookies.get('token')">
             <el-dropdown>
               <el-avatar
-                :src="this.$cookies.get('Avatar')"
+                :src="avatar"
                 @error="errorHandler"
               ></el-avatar>
 
               <el-dropdown-menu slot="dropdown">
 
-                <el-dropdown-item icon="el-icon-circle-close"
+                <el-dropdown-item icon="el-icon-setting"
                   >
                   <label @click="setting()">个人中心</label></el-dropdown-item
                 >
@@ -161,77 +159,92 @@
 </template>
 
 <script>
-import "element-ui/lib/theme-chalk/display.css";
-import animate from "animate.css";
+import 'element-ui/lib/theme-chalk/display.css'
+import animate from 'animate.css'
+import { request } from '../../api/http'
+import { AllAlbum } from '../../api/url'
 
 export default {
-  inject: ["reload"],
-  data() {
+  inject: ['reload'],
+  data () {
     return {
-      input: "",
-    };
+      input: ''
+    }
+  },
+  computed: {
+    avatar () {
+      return this.$cookies.get('Avatar')
+    }
   },
   methods: {
-    toLogin() {
+    toSearch () {
       this.$router.push({
-        path: "/login",
-      });
+        path: '/category',
+        query: {
+          search: this.input
+        }
+      })
     },
-    toHome() {
+    toLogin () {
       this.$router.push({
-        path: "/",
-      });
+        path: '/login'
+      })
     },
-    toCart() {
-      if (this.$cookies.get("token")) {
+    toHome () {
+      this.$router.push({
+        path: '/'
+      })
+    },
+    toCart () {
+      if (this.$cookies.get('token')) {
         this.$router.push({
-          path: "/shopping/cart",
-        });
+          path: '/shopping/cart'
+        })
       } else {
-        this.$confirm("您尚未登录！", "smallFrog", {
-          confirmButtonText: "去登陆",
-          cancelButtonText: "取消",
-          type: "warning",
+        this.$confirm('您尚未登录！', 'smallFrog', {
+          confirmButtonText: '去登陆',
+          cancelButtonText: '取消',
+          type: 'warning'
         }).then(() => {
           this.$router.push({
-            path: "/login",
-          });
-        });
+            path: '/login'
+          })
+        })
       }
     },
-    toOrder() {
-      if (this.$cookies.get("token")) {
+    toOrder () {
+      if (this.$cookies.get('token')) {
         this.$router.push({
-          path: "/order",
-        });
+          path: '/order'
+        })
       } else {
-        this.$confirm("您尚未登录！", "smallFrog", {
-          confirmButtonText: "去登陆",
-          cancelButtonText: "取消",
-          type: "warning",
+        this.$confirm('您尚未登录！', 'smallFrog', {
+          confirmButtonText: '去登陆',
+          cancelButtonText: '取消',
+          type: 'warning'
         }).then(() => {
           this.$router.push({
-            path: "/login",
-          });
-        });
+            path: '/login'
+          })
+        })
       }
     },
-    setting() {
+    setting () {
       this.$router.push({
-        path: "/setting",
-      });
+        path: '/setting'
+      })
     },
-    exit() {
-      this.$cookies.remove("token");
-      this.$cookies.remove("user_ID");
-      this.$cookies.remove("Avatar");
-      this.reload();
+    exit () {
+      this.$cookies.remove('token')
+      this.$cookies.remove('user_ID')
+      this.$cookies.remove('Avatar')
+      this.reload()
     },
-    errorHandler() {
-      return true;
-    },
-  },
-};
+    errorHandler () {
+      return true
+    }
+  }
+}
 </script>
 
 <style>

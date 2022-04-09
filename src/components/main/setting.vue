@@ -57,13 +57,14 @@
       <div class="user-pass flex">
         <div class="">
           <div class="info_text">密码：</div>
-          <div>{{userInfo.pass}}</div>
+          <div>******</div>
         </div>
         <div
           class="edit_text"
           @click="updatePassWord"
         >编辑</div>
       </div>
+      <div class="success-btn" @click="saveUserInfo">确认保存</div>
     </div>
     <div
       v-if="showMask"
@@ -86,10 +87,10 @@
           show-password
         ></el-input>
         <div class="popun-content pass-tip">{{passTip}}</div>
-        <div
-          class="popun-close"
-          @click="closeMask"
-        >关闭</div>
+            <div
+            class="popun-close"
+            @click="closeMask"
+            >关闭</div>
       </div>
     </div>
   </div>
@@ -124,6 +125,44 @@ export default {
     this.getUserInfo()
   },
   methods: {
+    saveUserInfo () {
+      let params = {
+        id: this.$cookies.get('user_ID')
+      }
+      if (this.changeName) {
+        params['name'] = this.userInfo.name
+      }
+      if (!this.passTip) {
+        params['pass'] = this.pass
+      }
+      if (!this.changeName && this.passTip) {
+        return
+      }
+      request({
+        url: ModifyUser,
+        params,
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        console.log(res, 99)
+        if (res.state) {
+          this.$message({
+            type: 'success',
+            message: '保存成功'
+          })
+          if (!this.passTip) {
+            this.$cookies.remove('token')
+            this.$cookies.remove('user_ID')
+            this.$cookies.remove('Avatar')
+            this.$router.push({
+              path: '/login'
+            })
+          }
+        }
+      })
+    },
     getUserInfo () {
       request({
         url: UserById,
@@ -135,8 +174,9 @@ export default {
         },
         pack: ''
       }).then(res => {
-        if (res.data.state) {
-          console.log(res, 55)
+        if (res.code === 200) {
+          this.userInfo = res.data
+          this.avatarUrl = res.data.avatar ? `http://121.4.124.243/uploads/${res.data.avatar}` : ''
         }
       })
     },
@@ -151,6 +191,7 @@ export default {
         //   type: 'success',
         //   message: '你的邮箱是: ' + value
         // })
+        this.changeName = true
         this.userInfo.name = value
       }).catch(() => {
         // this.$message({
@@ -172,13 +213,21 @@ export default {
         url: ModifyAvatar,
         params: uploading,
         requestType: 'multipart',
+        pack: '',
         headersParams: {
           token: this.$cookies.get('token')
         }
-      }).finaly(() => {
+      }).then(res => {
         // eslint-disable-next-line new-cap
         new myreferto(params).men()
+        if (res.state) {
+          this.$cookies.set('Avatar', `http://121.4.124.243/uploads/${res.data.avatar}`)
+        }
       })
+        .finaly(() => {
+        // eslint-disable-next-line new-cap
+          new myreferto(params).men()
+        })
     },
     closeMask () {
       this.showMask = false
@@ -189,7 +238,7 @@ export default {
 
 <style>
 .setting__wrapper {
-  height: 350px;
+  height: 400px;
   width: 35%;
   margin: 0 auto;
 }
@@ -219,10 +268,21 @@ export default {
   margin-bottom: 5px;
 }
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: #999;
+}
+.success-btn {
+    width: 80px;
+    height: 30px;
+    line-height: 30px;
+    color: #fff;
+    background: #1472ff;
+    text-align: center;
+    border-radius: 20px;
+    margin: 20px auto;
+    cursor: pointer;
 }
 .mask {
   position: fixed;
