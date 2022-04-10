@@ -64,12 +64,38 @@
         </div>
       </div>
     </div>
+    <el-tabs type="card" class="tabs">
+      <el-tab-pane label="评价">
+        <div v-if="commentList.length > 0">
+          <div v-for="(item) of commentList" :key="item.id">
+              <div class="comment-wrapper">
+                <div class="comment">
+                <div class="avatar">
+                  <img class="avatar" :src="'http://121.4.124.243/uploads/' + item.avatar" alt="">
+                </div>
+                <div>
+                  <div class="user-name">{{item.uname || '匿名'}}</div>
+                  <time class="user-time">{{item.time}}</time>
+                </div>
+                <div class="content-text">
+                  {{item.content}}
+                </div>
+              </div>
+              <div v-if="item.replies.length > 0" class="replay">专辑售卖商城({{item.replies[0].time}})：{{item.replies[0].content}}</div>
+              </div>
+          </div>
+        </div>
+        <div v-else class="empty">
+          暂无评价
+        </div>
+      </el-tab-pane>
+  </el-tabs>
   </div>
 </template>
 
 <script>
 import { request } from '../../api/http'
-import { AlbumById, AddCart } from '../../api/url'
+import { AlbumById, AddCart, findCommnetById } from '../../api/url'
 
 export default {
   data () {
@@ -79,13 +105,32 @@ export default {
       num: 1,
       cart: [],
       colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-      rate: 4.5
+      rate: 4.5,
+      commentList: []
     }
   },
   created () {
     this.getInfo()
+    this.getComment()
   },
   methods: {
+    getComment () {
+      request({
+        url: findCommnetById,
+        params: {
+          pageSize: 100,
+          pageNum: 1,
+          aid: this.$route.query.ID
+        },
+        pack: ''
+      })
+        .then((res) => {
+          console.log(res, 'comment')
+          if (res.state) {
+            this.commentList = res.data.list
+          }
+        })
+    },
     getInfo () {
       request({
         url: AlbumById,
@@ -159,7 +204,8 @@ export default {
         this.$router.push({
           path: '/shopping/settle',
           query: {
-            cart: this.cart
+            cart: this.cart,
+            immediate: true
           }
         })
       } else {
@@ -179,6 +225,49 @@ export default {
 </script>
 
 <style>
+.replay {
+  margin: 5px 0 0 200px;
+  padding: 5px;
+  background-color: #f5f5f5;
+  color: #999;
+  font-size: 13px;
+}
+.comment-wrapper {
+  margin-bottom: 10px;
+}
+.comment {
+  display: flex;
+  align-items: center;
+}
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.user-name {
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+.user-time {
+  color: #999;
+  font-size: 12px;
+}
+.content-text {
+  margin-left: 20px;
+  font-size: 14px;
+  color: #333;
+}
+.empty {
+  color: #999;
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+}
+.tabs {
+  padding: 0 100px;
+}
 .bookInfo {
   justify-content: center;
   margin-top: 50px;

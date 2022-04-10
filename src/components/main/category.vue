@@ -120,7 +120,7 @@ export default {
       navItems: [],
       Books: [],
       currentPage: 1,
-      pagesize: 20,
+      pagesize: 100,
       total: 0
     }
   },

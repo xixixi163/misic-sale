@@ -115,7 +115,7 @@
 
 <script>
 import { request } from '../../api/http'
-import { SeeReceiveAddress, AddReceiveAddress } from '../../api/url'
+import { SeeReceiveAddress, calcCart, saveOrder } from '../../api/url'
 import ReceiveAddress from '../receive-address/index'
 
 export default {
@@ -203,14 +203,53 @@ export default {
           center: true
         })
       } else {
-        this.$router.push({
-          path: '/shopping/pay',
-          query: {
-            User_name: e.ID,
-            User_tel: e.Phone,
-            User_address: e.Address,
-            cart: this.cart
+        let url = calcCart
+        let params = {
+          rid: e.id
+        }
+        if (this.$route.query.immediate) {
+          url = saveOrder
+          params = {
+            aid: this.cart[0].id,
+            count: this.count,
+            price: this.totalPrice,
+            rid: e.id,
+            state: 0
           }
+        }
+        request({
+          url,
+          params,
+          pack: '',
+          headersParams: {
+            token: this.$cookies.get('token')
+          }
+        }).then(res => {
+          if (res.state) {
+            this.$message({
+              showClose: true,
+              message: '结算成功',
+              type: 'success',
+              center: true
+            })
+            this.$router.push({
+              path: '/order'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: '系统异常，请稍后操作',
+              type: 'error',
+              center: true
+            })
+          }
+        }).catch(() => {
+          this.$message({
+            showClose: true,
+            message: '系统异常，请稍后操作',
+            type: 'error',
+            center: true
+          })
         })
       }
     },

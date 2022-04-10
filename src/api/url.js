@@ -24,7 +24,10 @@ const ModifyPass = `${BASE_URL}user/changePass` // 修改密码
 const ModifyUser = `${BASE_URL}user/modifyUser` // 修改信息
 const ModifyAvatar = `${BASE_URL}user/modifyAvatar`
 const UserById = `${BASE_URL}user/findUserById`
-// const = `${BASE_URL}`
+const findCommnetById = `${BASE_URL}album/findEvaluationByAid`
+const saveComment = `${BASE_URL}order/saveEvaluation`
+const refund = `${BASE_URL}order/refund`
+const sureGoods = `${BASE_URL}order/check`
 
 export {
   SellingAlbum,
@@ -51,5 +54,9 @@ export {
   ModifyUser,
   ModifyAvatar,
   UserById,
-  AlbumById
+  AlbumById,
+  findCommnetById,
+  saveComment,
+  refund,
+  sureGoods
 }

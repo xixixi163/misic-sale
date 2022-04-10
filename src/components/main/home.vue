@@ -31,7 +31,7 @@
           >
             <img
               class="img"
-              @click="toInfo(book)"
+              @click="toInfo(music)"
               :src="
                 'http://121.4.124.243/uploads/' + music.avatar
               "
@@ -80,7 +80,7 @@ export default {
     //   console.log(this.recBooks);
     //   this.transRec();
     // });
-
+    this.getHot()
   },
   // mounted() {
   // // 在项目加载完成之后初始化wow
@@ -93,7 +93,7 @@ export default {
   methods: {
     getHot () {
       const params = {
-        pageSize: 10,
+        pageSize: 100,
         pageNum: 1,
         hotType: 3
       }
@@ -104,7 +104,7 @@ export default {
       }).then(res => {
         console.log(res, 33)
         if (res.state) {
-          this.musicList = res.data
+          this.musicList = res.data.list
         }
       })
     },

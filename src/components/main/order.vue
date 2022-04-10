@@ -16,24 +16,29 @@
             <div class="list">
                 <el-row type="flex" align="middle">
                     <el-col :span="3" class="title">商品图片</el-col>
-                    <el-col :span="9" class="title">商品名称</el-col>
+                    <el-col :span="5" class="title">商品名称</el-col>
                     <el-col :span="3" class="title">单价</el-col>
                     <el-col :span="3" class="title">数量</el-col>
                     <el-col :span="3" class="title">小计</el-col>
-                    <el-col :span="3" class="title">操作</el-col>
+                    <el-col :span="3" class="title">订单状态</el-col>
+                    <el-col :span="7" class="title">操作</el-col>
                 </el-row>
 
                 <div v-for="(book, index) in cart" :key="index">
-                    <el-row type="flex" align="middle">
+                    <el-row type="flex" align="middle"  >
                         <el-col :span="3" class="bookRow">
-                            <img class="bookImg" :src="'http://121.4.124.243/uploads/' + book.book_Img">
+                            <img class="bookImg" :src="'http://121.4.124.243/uploads/' + book.avatar">
                         </el-col>
-                        <el-col :span="9" class="bookRow">{{ book.name }}</el-col>
+                        <el-col :span="5" class="bookRow">{{ book.name }}</el-col>
                         <el-col :span="3" class="bookRow">{{ book.price }}</el-col>
                         <el-col :span="3" class="bookRow">{{ book.count }}</el-col>
-                        <el-col :span="3" class="bookRow">{{ book.unit_Price * book.count }}</el-col>
-                        <el-col :span="3" class="bookRow">
-                            <el-button type="danger" icon="el-icon-delete" @click="cartDelete(book)" circle></el-button>
+                        <el-col :span="3" class="bookRow">{{ book.price }}</el-col>
+                        <el-col :span="3" class="bookRow">{{ getState(book.state) }}</el-col>
+                        <el-col :span="7" class="bookRow">
+                            <el-button v-if="book.state === 3" type="success" round @click="checkGoods(book)">确认收货</el-button>
+                            <el-button v-if="book.state >= 0 && book.state <= 4" type="info" round @click="requestRefund(book)">申请退款</el-button>
+                            <el-button v-if="book.state === 5" type="success" round @click="openComment(book)">评价</el-button>
+                            <el-button type="success" round @click="getDetail(book)">详情</el-button>
                         </el-col>
                     </el-row>
                 </div>
@@ -42,13 +47,7 @@
             <div class="summary">
                 <el-row type="flex" align="middle">
                     <el-col :span="6">
-                        <div class="number">共 {{ count }} 件商品</div>
-                    </el-col>
-                    <el-col :span="14">
-                        <div class="price">合计（不含运费）：{{ totalPrice }} 元</div>
-                    </el-col>
-                    <el-col :span="4" class="settlement">
-                        <div @click="toSettle()">结算</div>
+                        <div class="number">共 {{ this.cart.length }} 个订单</div>
                     </el-col>
                 </el-row>
             </div>
@@ -78,13 +77,46 @@
                 </el-row>
             </div>
         </div>
+        <div v-if="showDetail">
+            <el-dialog title="订单详情" class="dialog" :visible.sync="showDetail" width="35%" @close="showDetail=false">
+                <el-card :body-style="{ padding: '0px' }">
+                    <img :src="'http://121.4.124.243/uploads/' + order.avatar" class="image">
+                    <div style="padding: 14px;">
+                        <span>{{order.name+'/'+order.master}}</span>
+                        <div class="bottom clearfix">
+                        <time class="time">{{ '下单时间：' + order.time }}</time>
+                        </div>
+                    </div>
+                    <div style="padding: 5px 14px;">
+                        数量：{{order.count}}
+                    </div>
+                    <div style="padding: 5px 14px;">
+                        小计：{{order.price}}
+                    </div>
+                    <div style="padding: 5px 14px;">
+                        收货人信息：{{order.uname}} <span style="color: #999"> / </span> {{order.phone}}<span style="color: #999"> / </span>{{order.address}}
+                    </div>
+                </el-card>
+            </el-dialog>
+        </div>
+        <div v-if="showComment">
+            <el-dialog title="发布评价" class="dialog" :visible.sync="showComment" width="35%" @close="showComment=false">
+                <el-input
+                    type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 4}"
+                    placeholder="请输入您的评价，体验不错给个好评吧~"
+                    v-model.trim="comment">
+                </el-input>
+                <el-button style="margin-top:20px" type="success" round @click="saveComment">发表</el-button>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
 <script>
 import axios from 'axios'
 import { request } from '../../api/http'
-import { AllOrder } from '../../api/url'
+import { AllOrder, saveComment, refund, sureGoods } from '../../api/url'
 
 export default {
   inject: ['reload'],
@@ -92,29 +124,148 @@ export default {
     return {
       cart: [],
       count: 0,
-      totalPrice: 0
+      totalPrice: 0,
+      showDetail: false,
+      order: {},
+      comment: '',
+      showComment: false
     }
   },
   created () {
-    var address = 'https://www.xiaoqw.online/smallFrog-bookstore/server/userCart.php'
-    var user_ID = this.$cookies.get('user_ID')
-    var count = 0
-    var totalPrice = 0
-
-    axios.post(address, user_ID).then(res => {
-      this.cart = res.data // 获取数据
-      console.log('success')
-      console.log(this.cart)
-
-      for (let i = 0; i < this.cart.length; i++) {
-        count += parseFloat(this.cart[i].count)
-        totalPrice += parseFloat(this.cart[i].unit_Price * this.cart[i].count)
-      }
-      this.count = count
-      this.totalPrice = totalPrice
-    })
+    this.getAllOrder()
   },
   methods: {
+    getDetail (order) {
+      this.order = order
+      this.showDetail = true
+    },
+    checkGoods (order) {
+      request({
+        url: sureGoods,
+        params: {
+          id: order.id
+        },
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        if (res.state) {
+          this.$message({
+            showClose: true,
+            message: '收货成功',
+            type: 'success',
+            center: true
+          })
+          this.reload()
+        }
+      })
+    },
+    getState (state) {
+      if (state === 0) {
+        return '已付款，待发货'
+      } else if (state === 3) {
+        return '已发货'
+      } else if (state === 4) {
+        return '确认收货'
+      } else if (state === 5) {
+        return '交易完成'
+      } else if (state === 6) {
+        return '退款中'
+      } else if (state === 7) {
+        return '订单关闭'
+      }
+    },
+    requestRefund (order) {
+      request({
+        url: refund,
+        params: {
+          id: order.id
+        },
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        if (res.state) {
+          this.$message({
+            showClose: true,
+            message: '请求退款成功！',
+            type: 'success',
+            center: true
+          })
+          this.reload()
+        } else {
+          this.$message({
+            showClose: true,
+            message: '失败',
+            type: 'error',
+            center: true
+          })
+        }
+      })
+    },
+    openComment (order) {
+      this.showComment = true
+      this.currentOrder = order
+    },
+    saveComment () {
+      if (!this.comment) {
+        this.$message({
+          showClose: true,
+          message: '内容不能为空',
+          type: 'warning',
+          center: true
+        })
+        return
+      }
+      request({
+        url: saveComment,
+        params: {
+          aid: this.currentOrder.aid,
+          oid: this.currentOrder.id,
+          content: this.comment
+        },
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        if (res.state) {
+          this.$message({
+            showClose: true,
+            message: '评价成功！',
+            type: 'success',
+            center: true
+          })
+          this.currentOrder = ''
+          this.showComment = false
+        } else {
+          this.$message({
+            showClose: true,
+            message: '失败',
+            type: 'error',
+            center: true
+          })
+        }
+      })
+    },
+    getAllOrder () {
+      request({
+        url: AllOrder,
+        params: {
+
+        },
+        pack: '',
+        headersParams: {
+          token: this.$cookies.get('token')
+        }
+      }).then(res => {
+        if (res.state) {
+          this.cart = res.data
+        }
+      })
+    },
     cartDelete (e) {
       var address = 'https://www.xiaoqw.online/smallFrog-bookstore/server/cartDelete.php'
 
@@ -130,25 +281,6 @@ export default {
           center: true
         })
         this.reload()
-        // let res = response.data;
-        // if (res.status == '1') {
-        //     console.log('删除成功');
-        //     this.$message({
-        //         showClose: true,
-        //         message: '删除成功！',
-        //         type: 'success',
-        //         center: true
-        //     });
-        //     this.reload();
-        // } else {
-        //     console.log('删除失败！');
-        //     this.$message({
-        //         showClose: true,
-        //         message: '删除失败！',
-        //         type: 'error',
-        //         center: true
-        //     });
-        // }
       })
     },
     toSettle () {
@@ -261,4 +393,31 @@ export default {
     .summary .settlement:hover {
         background-color: #787f86;
     }
+    .time {
+    font-size: 13px;
+    color: #999;
+  }
+  .bottom {
+    margin-top: 13px;
+    line-height: 12px;
+  }
+
+  .button {
+    padding: 0;
+    float: right;
+  }
+
+  .image {
+    width: 100%;
+    display: block;
+  }
+
+  .clearfix:before,
+  .clearfix:after {
+      display: table;
+      content: "";
+  }
+  .clearfix:after {
+      clear: both
+  }
 </style>
